@@ -24,13 +24,14 @@ def delete_index(index, dry_run):
 def main(url, index, days, dry_run=False):
     global es_url
     global logstash_pattern
+    if url.endswith("/"):
+        url = url[0:-1]
     es_url = url
     logstash_pattern = re.compile(r'%s\-(([0-9]{4})\.([0-9]{2})\.([0-9]{2}))' % index)
 
     deleteBefore = datetime.now() - timedelta(days=days)
 
     indexes = get_indices()
-    print(indexes)
 
     for index in indexes:
         datematch = logstash_pattern.match(index)
