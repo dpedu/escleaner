@@ -3,6 +3,7 @@
 import requests
 import re
 from datetime import datetime, timedelta
+from urllib.parse import urlparse, urlunparse
 
 
 def get_indices():
@@ -16,7 +17,7 @@ def get_indices():
 def delete_index(index, dry_run):
     if index:
         print("deleting {}".format(index))
-        del_url = "{}{}".format(es_url, index)
+        del_url = "{}/{}".format(es_url, index)
         if not dry_run:
             print(requests.delete(del_url).text)
 
@@ -24,9 +25,9 @@ def delete_index(index, dry_run):
 def main(url, index, days, dry_run=False):
     global es_url
     global logstash_pattern
-    if url.endswith("/"):
-        url = url[0:-1]
-    es_url = url
+
+    es_url = urlunparse(urlparse(url)).rstrip("/")
+
     logstash_pattern = re.compile(r'%s\-(([0-9]{4})\.([0-9]{2})\.([0-9]{2}))' % index)
 
     deleteBefore = datetime.now() - timedelta(days=days)
